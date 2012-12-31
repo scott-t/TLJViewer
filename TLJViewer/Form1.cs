@@ -19,12 +19,18 @@ namespace TLJViewer
         //stringFormatter[] functions = new stringFormatter()[0x26];
 
         //public static string gamepath = "d:/games/tlj demo";
-        public static string gamepath = "d:/games/tlj";
+        public static string gamepath = Properties.Settings.Default.GamePath;
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            TreeNode node = readSubDir(new System.IO.DirectoryInfo(gamepath));
-            fileTree.Nodes.Add(node);
+            lblGamePath.Text = gamepath;
+            if (System.IO.Directory.Exists(gamepath))
+            {
+                fileTree.Nodes.Clear();
+                scriptTree.Nodes.Clear();
+                TreeNode node = readSubDir(new System.IO.DirectoryInfo(gamepath));
+                fileTree.Nodes.Add(node);
+            }
         }
 
         private TreeNode readSubDir(System.IO.DirectoryInfo dir)
@@ -109,6 +115,22 @@ namespace TLJViewer
             scriptNodeBinding.Add(scriptTree.SelectedNode.Tag);
 
             scriptNodeBinding.MoveFirst();
+        }
+
+        private void btnBrowse_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog f = new FolderBrowserDialog();
+            f.ShowNewFolderButton = false;
+            f.Description = "Path to game installation";
+            f.SelectedPath = Properties.Settings.Default.GamePath;
+            DialogResult res = f.ShowDialog(this);
+            if (res == DialogResult.OK)
+            {
+                Properties.Settings.Default.GamePath = f.SelectedPath;
+                Properties.Settings.Default.Save();
+                Form1.gamepath = f.SelectedPath;
+                Form1_Load(null, null);
+            }
         }
 
     }
